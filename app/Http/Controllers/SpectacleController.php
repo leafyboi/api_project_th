@@ -54,7 +54,7 @@ class SpectacleController extends Controller
     public function getSpectacles(Request $request)
     {
         $theater_id = $request->input('theater_id');
-        $spectacles = Spectacle::where('theater_id', $theater_id)->orderBy('created_at', 'asc')->get(['id', 'name', 'rate', 'poster', 'description'])->toArray();
+        $spectacles = Spectacle::where('theater_id', $theater_id)->orderBy('created_at', 'asc')->get();
         $theater = Theater::find($theater_id);
 
         if ($theater === null){
@@ -73,7 +73,7 @@ class SpectacleController extends Controller
     public function getSpectacle(Request $request)
     {
         $spectacle_id = $request->input('spectacle_id');
-        $spectacle = Spectacle::get(['id', 'name', 'rate', 'poster', 'description'])->find($spectacle_id);
+        $spectacle = Spectacle::find($spectacle_id);
 
         if ($spectacle === null) {
             return response()->json([

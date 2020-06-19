@@ -8,11 +8,18 @@ use App\Bookmark;
 
 class ProfileController extends Controller
 {
-    public function updateUserProfile(Request $request, $user_id)
+    public function updateUserProfile(Request $request)
     {
+        $user_id = $request->input('id');
         $user = User::find($user_id);
 
-        if ($user) {
+        if ($user === null) {
+            return response()->json([
+                'errors' => [
+                    'type' => 'UserNotFound',
+                    'message' => 'Пользователь с таким ID пользователя не найден.'],
+                'message' => 'Указанные данные введены неверно.'], 404);
+        } else {
             $user->name = $request->input('name');
             $user->surname = $request->input('surname');
             $user->save();
@@ -20,35 +27,31 @@ class ProfileController extends Controller
             return response()->json([
                 'message' => 'Информация в Вашем профиле успешно обновлена.'
             ], 201);
-        } else {
+        }
+    }
+
+    public function getUserProfile(Request $request)
+    {
+        $user_id = $request->input('id');
+        $user = User::find($user_id);
+
+        if ($user === null){
             return response()->json([
                 'errors' => [
                     'type' => 'UserNotFound',
                     'message' => 'Пользователь с таким ID пользователя не найден.'],
                 'message' => 'Указанные данные введены неверно.'], 404);
-        }
-    }
-
-    public function getUserProfile($user_id)
-    {
-        $user = User::find($user_id);
-
-        if ($user){
-         return response()->json([
-             'user' => $user
-         ],200);
         }
         else {
             return response()->json([
-                'errors' => [
-                    'type' => 'UserNotFound',
-                    'message' => 'Пользователь с таким ID пользователя не найден.'],
-                'message' => 'Указанные данные введены неверно.'], 404);
+                'user' => $user
+            ],200);
         }
     }
 
-    public function addUserBookmark(Request $request, $user_id)
+    public function addUserBookmark(Request $request)
     {
+        $user_id = $request->input('user_id');
         $spectacle_id = $request->input('spectacle_id');
 
         $data = array(
@@ -57,16 +60,20 @@ class ProfileController extends Controller
         );
 
         $bookmark = Bookmark::create($data);
+        $spectacle = Spectacle::find($spectacle_id);
+        $user = User::find($user_id);
 
         if ($bookmark) {
             return response()->json([
                 'message' => 'Спектакль добавлен в закладки.'
-            ]); // raspisat' oshibki
+            ], 201); // raspisat' oshibki
         }
     }
 
-    public function deleteUserBookmark($user_id, $spectacle_id)
+    public function deleteUserBookmark(Request $request)
     {
+        $user_id = $request->input('user_id');
+        $spectacle_id = $request->input('spectacle_id');
         $bookmark = Bookmark::where($user_id)->find($spectacle_id);
 
         if ($bookmark) {
@@ -82,16 +89,22 @@ class ProfileController extends Controller
         }
     }
 
-    public function getUserBookmark($user_id)
+    public function getUserBookmarks(Request $request)
     {
+        $user_id = $request->input('id');
+        $user = User::find($user_id);
         $bookmarks = Bookmark::where($user_id)
-        ->with('spectacle')
-        ->get();
+            ->with('spectacle')
+            ->get();
 
-    if($bookmarks)
-    {
-        return response()->json([
-        'bookmarks' => $bookmarks
-        ], 200);}
+        if ($user === null) {
+            return response()->json([
+                'type' => 'UserNotFound',
+                'message' => 'Пользователь с таким id не найден.'
+            ], 404);
+        } else {
+            return response()->json([
+                'bookmarks' => $bookmarks], 200);
+        }
     }
 }

@@ -18,7 +18,6 @@ class AuthController extends Controller
 
         $user = User::create($validatedData);
 
-
         if($user) {
             return response()->json([
             'message' => 'Регистрация прошла успешно. Вы были перенаправлены на страницу авторизации.'],201);}
@@ -33,12 +32,10 @@ class AuthController extends Controller
         ]);
         if (!auth()->attempt($loginData)) {
             return response([
-                'message' => 'Не удаётся войти. Неверный логин или пароль.',
-                'token' => 'null',
-                'user' => 'null']);
+                'message' => 'Не удаётся войти. Неверный логин или пароль.']);
         }
 
-        $token = auth()->user()->createToken('authToken')->accessToken; // accessTok
+        $token = auth()->user()->createToken('remember_token')->accessToken; // accessTok
 
         return response([
             'user' => auth()->user(),
@@ -50,11 +47,7 @@ class AuthController extends Controller
     {
         auth()->logout();
 
-        $errors = array();
-
         return response()->json([
-            'has_errors'=>false,
-            'errors'=>$errors,
             'message' => 'Вы успешно вышли из системы.']);
     }
 

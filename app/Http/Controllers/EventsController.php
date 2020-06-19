@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Event;
+use App\Spectacle;
+use App\Hall;
 
 class EventsController extends Controller
 {
@@ -53,7 +55,7 @@ class EventsController extends Controller
                     'type' => 'SpectacleNotFound',
                     'message' => 'Спектакль с таким id не найден.'
                 ],
-                'message' => 'В процессе события возникли ошибки.'
+                'message' => 'В процессе добавления события возникли ошибки.'
                 ], 404);}
         else if ($spectacle == null) {
             return response()->json([
@@ -100,28 +102,34 @@ class EventsController extends Controller
 
     public function getEvents(Request $request) // $name, $date_range_start, $date_range_end
     {
-        $name = $request->input('name');
         $date_range_start = $request->input('date_from');
         $date_range_end = $request->input('date_to');
+        $name = $request->input('name');
         $genre = $request->input('genre');
-        $theater = $request->input('theater');
         $age_start = $request->input('age_from');
         $age_end = $request->input('age_to');
-        $price_start = $request->input('price_from');
-        $price_end = $request->input('price_to');
         $duration_start = $request->input('duration_from');
         $duration_end = $request->input('duration_to');
 
-        $events = Event::where('name', 'like', '%' .$name. '%')
-            ->whereBetween('dated_at', [$date_range_start." 00:00:00", $date_range_end." 23:59:59"])
+        $events = Event::whereHas('spectacle', function($q){
+            $q->whereBetween('duration', [$duration_start, $duration_end])
+                ->whereBetween('age', [$age_start, $age_end])
+                ->where('genre', 'like', '%' .$genre. '%')
+                ->where('name', 'like', '%' .$name. '%');})
+            ->with('spectacle')
+            ->with('theater')
+            ->whereBetween('dated_at', [$date_range_start." 00:00:00:", $date_range_end. "23:59:59"])
+            ->get();
+    /*    $events = Event::whereBetween('dated_at', [$date_range_start." 00:00:00", $date_range_end." 23:59:59"])
             ->where('genre', 'like', '%' .$genre. '%')
             ->where('theater', '=', $theater)
             ->whereBetween('age', [$age_start, $age_end])
-            ->whereBetween('price', [$price_start, $price_end])
             ->whereBetween('duration', [$duration_start, $duration_end])
             ->with('spectacle')
+            ->where('name', 'like', '%' .$name. '%')
             ->with('theater')
-            ->get();
+            ->get(); */
+
 
             return response()->json([
                 'events' => $events

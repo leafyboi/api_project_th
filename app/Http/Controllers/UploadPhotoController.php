@@ -60,14 +60,14 @@ class UploadPhotoController extends Controller
             'url' => $photoURL], 200);
     }
 
-    public function spectacleTrailerSave(Request $request) {
+    public function spectaclePreviewSave(Request $request) {
         request()->validate([
-            'spectacle_trailer' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
+            'spectacle_preview' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
         ]);
 
         $filename = Str::random(15);
-        $path = $request->file('spectacle_trailer')->move(public_path("/spectacle_trailer"), $filename);
-        $photoURL = url('/spectacle_trailer/'.$filename);
+        $path = $request->file('spectacle_preview')->move(public_path("/spectacle_preview"), $filename);
+        $photoURL = url('/spectacle_preview/'.$filename);
         return response()->json([
             'message' => 'Картинка успешно загружена на сервер по адресу:',
             'url' => $photoURL], 200);

@@ -65,17 +65,17 @@ class HallsController extends Controller
         $hall_id = $request->input('id');
         $hall = Hall::find($hall_id);
 
-        if ($hall) {
-            return response()->json([
-                'hall' => $hall
-            ], 200);}
-        else {
-            return response()->json([
+        if ($hall === null) {
+             return response()->json([
                 'errors' => [
                     'type' => 'HallNotFound',
                     'message' => 'Зал с таким id не найден.'],
                 'message' => 'В процессе получения информации о зале возникли ошибки.'
-            ], 404);
+            ], 404);}
+        else {
+            return response()->json([
+                'hall' => $hall
+            ], 200);
         }
     }
 

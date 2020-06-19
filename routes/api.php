@@ -15,11 +15,11 @@ Route::group([], function () {
     Route::post('/reset-password', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.request');
     Route::post('/reset/password', 'Auth\ResetPasswordController@reset')->name('password.reset');
 
-    Route::patch('/user/{user_id}', 'ProfileController@updateUserProfile');
-    Route::get('/user/{user_id}', 'ProfileController@getUserProfile');
-    Route::get('/user/{user_id}/bookmarks', 'ProfileController@getUserBookmark');
-    Route::post('/user/{user_id}/bookmarks', 'ProfileController@addUserBookmark');
-    Route::delete('/user/{user_id}/bookmarks/{spectacle_id}', 'ProfileController@deleteUserBookmark');
+    Route::patch('/user', 'ProfileController@updateUserProfile');
+    Route::get('/user}', 'ProfileController@getUserProfile');
+    Route::get('/bookmarks', 'ProfileController@getUserBookmarks');
+    Route::post('/bookmark', 'ProfileController@addUserBookmark');
+    Route::delete('/bookmark', 'ProfileController@deleteUserBookmark');
 
     Route::get('/user', function (Request $request){ return $request->user(); })->middleware('auth:api');
 
@@ -41,15 +41,15 @@ Route::group([], function () {
     Route::post('/file/theater/photo', 'UploadPhotoController@theaterPhotoSave');
     Route::post('/file/theater/preview', 'UploadPhotoController@theaterPreviewSave');
     Route::post('/file/spectacle/poster', 'UploadPhotoController@spectaclePosterSave');
-    Route::post('/file/spectacle/trailer', 'UploadPhotoController@spectacleTrailerSave');
+    Route::post('/file/spectacle/preview', 'UploadPhotoController@spectaclePreviewSave');
     Route::post('/file/spectacle/slider-poster', 'UploadPhotoController@spectacleSliderPosterSave');
     Route::post('/file/hall/scheme', 'UploadPhotoController@hallScheme');
 
     Route::post('/hall', 'HallsController@addHall');
-    Route::get('/halls', 'HallsController@getHall');
+    Route::get('/hall', 'HallsController@getHall');
     Route::get('/halls', 'HallsController@getHalls');
-    Route::delete('/halls?id={id}', 'HallsController@deleteHall');
-    Route::patch('/halls?id={id}', 'HallsController@updateHall');
+    Route::delete('/hall', 'HallsController@deleteHall');
+    Route::patch('/hall', 'HallsController@updateHall');
 
     Route::get('/events', 'EventsController@getEvents');
     Route::post('/event', 'EventsController@addEvent');
