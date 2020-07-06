@@ -43,7 +43,7 @@ class HallsController extends Controller
     public function getHalls(Request $request)
     {
         $theater_id = $request->input('theater_id');
-        $halls = Hall::find($theater_id)->get();
+        $halls = Hall::where('theater_id', $theater_id)->get();
         $theater = Theater::find($theater_id);
 
         if ($theater === null){
@@ -96,7 +96,7 @@ class HallsController extends Controller
 
             return response()->json([
                 'message' => 'Зал успешно удален.'
-            ], 201);
+            ], 200);
         }
     }
 

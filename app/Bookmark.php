@@ -12,6 +12,6 @@ class Bookmark extends Model
 
     public function spectacle()
     {
-        return $this->hasOne('App\Spectacle');
+        return $this->belongsTo('App\Spectacle');
     }
 }

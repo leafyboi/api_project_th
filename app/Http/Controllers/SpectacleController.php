@@ -15,6 +15,7 @@ class SpectacleController extends Controller
         $rate = 0;
         $duration = $request->input('duration');
         $year = $request->input('year');
+        $genre = $request->input('genre');
         $poster = $request->input('poster');
         $trailer = $request->input('trailer');
         $slider_poster = $request->input('slider_poster');
@@ -29,6 +30,7 @@ class SpectacleController extends Controller
             'poster' => $poster,
             'trailer' => $trailer,
             'slider_poster' => $slider_poster,
+            'genre' => $genre,
             'theater_id' => $theater_id
         );
 
@@ -72,7 +74,7 @@ class SpectacleController extends Controller
 
     public function getSpectacle(Request $request)
     {
-        $spectacle_id = $request->input('spectacle_id');
+        $spectacle_id = $request->input('id');
         $spectacle = Spectacle::find($spectacle_id);
 
         if ($spectacle === null) {
@@ -128,6 +130,7 @@ class SpectacleController extends Controller
             'rate' => $request->rate,
             'duration' => $request->duration,
             'year' => $request->year,
+            'genre' => $request->genre,
             'poster' => $request->poster,
             'trailer' => $request->trailer,
             'slider_poster' => $request->slider_poster,

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Event extends Model
 {
     protected $fillable = [
-        'name', 'dated_at', 'description', 'is_premiere', 'is_chosen_for_main_page', 'available_seats_number', 'spectacle_id', 'hall_id', 'theater_id', 'age', 'duration', 'price', 'genre'
+        'dated_at', 'description', 'is_premiere', 'is_chosen_for_main_page', 'available_seats_number', 'spectacle_id', 'hall_id', 'theater_id'
     ];
 
     protected $hidden = [
@@ -28,5 +28,4 @@ class Event extends Model
     {
         return $this->belongsTo('App\Theater');
     }
-
 }

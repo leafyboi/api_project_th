@@ -24,10 +24,6 @@ class CreateEventsTable extends Migration
             $table->integer('theater_id')->nullable();
             $table->integer('spectacle_id')->nullable();
             $table->integer('hall_id')->nullable();
-            $table->string('genre')->nullable();
-            $table->integer('age')->nullable();
-            $table->integer('price')->nullable();
-            $table->integer('duration')->nullable();
             $table->timestamps();
         });
     }

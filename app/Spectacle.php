@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Spectacle extends Model
 {
     protected $fillable = [
-        'name', 'description', 'rate', 'duration', 'year', 'poster', 'trailer', 'slider_poster', 'theater_id'
+        'name', 'description', 'rate', 'duration', 'year', 'poster', 'trailer', 'slider_poster', 'theater_id', 'genre'
     ];
 
     protected $hidden = [
@@ -23,4 +23,5 @@ class Spectacle extends Model
     {
         return $this->belongsTo('App\Bookmark');
     }
+
 }

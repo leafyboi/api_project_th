@@ -11,28 +11,32 @@ class SocialNetworkController extends Controller
     {
         $name = $request->input('name');
         $logo = $request->input('logo');
+        $theater_id = $request->input('theater_id');
+        $url = $request->input('url');
 
         $data = array(
             'name' => $name,
             'logo' => $logo,
+            'url' => $url,
+            'theater_id' => $theater_id
         );
 
-        $socialnetwork = SocialNetwork::create($data);
+        $socialNetwork = SocialNetwork::create($data);
 
 
             return response()->json([
                 'hall' => [
-                    'id' => $socialnetwork->id],
+                    'id' => $socialNetwork->id],
                 'message' => 'Социальная сеть успешно добавлена.'
             ], 201);
         }
 
-    public function updateHall(Request $request)
+    public function updateSocialNetwork(Request $request)
     {
-        $socialnetwork_id = $request->input('id');
-        $socialnetwork = Hall::find($socialnetwork_id);
+        $socialNetwork_id = $request->input('id');
+        $socialNetwork = SocialNetwork::find($socialNetwork_id);
 
-        if ($socialnetwork === null)
+        if ($socialNetwork === null)
         {
             return response()->json([
                 'errors' => [
@@ -40,22 +44,24 @@ class SocialNetworkController extends Controller
                     'message' => 'Социальная сеть с таким id не найден.'],
                 'message' => 'В процессе обновления социальной сети возникли ошибки.'],404);}
         else{
-            $socialnetwork->fill($request->only([
+            $socialNetwork->fill($request->only([
                 'name' => $request->name,
-                'logo' => $request->logo]));
-            $socialnetwork->save();
+                'logo' => $request->logo,
+                'url' => $request->url,
+                'theater_id' => $request->theater_id]));
+            $socialNetwork->save();
 
             return response()->json([
                 'message' => 'Социальная сеть успешно обновлена.'
             ],201);}
     }
 
-    public function getHall(Request $request)
+    public function getSocialNetwork(Request $request)
     {
-        $socialnetwork_id = $request->input('id');
-        $socialnetwork = SocialNetwork::find($socialnetwork_id);
+        $socialNetwork_id = $request->input('id');
+        $socialNetwork = SocialNetwork::find($socialNetwork_id);
 
-        if ($socialnetwork === null) {
+        if ($socialNetwork === null) {
             return response()->json([
                 'errors' => [
                     'type' => 'SocialNetworkNotFound',
@@ -63,8 +69,37 @@ class SocialNetworkController extends Controller
                 'message' => 'В процессе обновления социальной сети возникли ошибки.'],404);}
         else {
             return response()->json([
-                'socialnetwork' => $socialnetwork
+                'socialnetwork' => $socialNetwork
             ], 200);
+        }
+    }
+
+    public function getAllSocialNetworks()
+    {
+        $socialNetworks = SocialNetwork::orderBy('created_at', 'asc')->get();
+
+        return response()->json([
+            'socialnetwork' => $socialNetworks
+        ], 200);
+    }
+
+    public function deleteSocialNetwork(Request $request)
+    {
+        $id = $request->input('id');
+        $socialNetwork = SocialNetwork::find($id);
+
+        if ($socialNetwork === null) {
+            return response()->json([
+                'errors' => [
+                    'type' => 'SocialNetworkNotFound',
+                    'message' => 'Социальная сеть с таким id не найден.'],
+                'message' => 'В процессе обновления социальной сети возникли ошибки.'], 404);}
+        else {
+            $socialNetwork->delete();
+
+            return response()->json([
+                'message' => 'Социальная сеть успешно удалена.'
+            ], 201);
         }
     }
 }

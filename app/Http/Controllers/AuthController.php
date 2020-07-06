@@ -5,13 +5,16 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\User;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
         $validatedData = $request->validate([
-            'email' => 'unique:users'
+            'email' => 'unique:users',
+            'name' => '',
+            'surname' => ''
         ]);
 
         $validatedData['password'] = bcrypt($request->password);
@@ -35,7 +38,10 @@ class AuthController extends Controller
                 'message' => 'Не удаётся войти. Неверный логин или пароль.']);
         }
 
-        $token = auth()->user()->createToken('remember_token')->accessToken; // accessTok
+        $user = Auth::user();
+        $token = $user->generateToken(); // accessTok
+        $user->api_token = $token;
+        Auth::user()->save();
 
         return response([
             'user' => auth()->user(),

@@ -6,28 +6,23 @@ use Illuminate\Http\Request;
 use App\Event;
 use App\Spectacle;
 use App\Hall;
+use Illuminate\Support\Facades\DB;
 
 class EventsController extends Controller
 {
     public function addEvent(Request $request)
     {
         $dated_at = $request->input('dated_at');
-        $name = $request->input('name');
         $description = $request->input('description');
         $is_premiere = $request->input('is_premiere');
         $is_chosen_for_main_page = $request->input('is_chosen_for_main_page');
         $available_seats_number = $request->input('available_seats_number');
-        $duration = $request->input('duration');
-        $age = $request->input('age');
-        $price = $request->input('price');
-        $genre = $request->input('genre');
         $theater_id = $request->input('theater_id');
         $spectacle_id = $request->input('spectacle_id');
         $hall_id = $request->input('hall_id');
 
         $data = array(
             'dated_at' => $dated_at,
-            'name' => $name,
             'description' => $description,
             'is_premiere' => $is_premiere,
             'is_chosen_for_main_page' => $is_chosen_for_main_page,
@@ -35,10 +30,6 @@ class EventsController extends Controller
             'theater_id' => $theater_id,
             'spectacle_id' => $spectacle_id,
             'hall_id' => $hall_id,
-            'duration' => $duration,
-            'age' => $age,
-            'price' => $price,
-            'genre' => $genre
         );
 
         $event = Event::create($data);
@@ -106,30 +97,48 @@ class EventsController extends Controller
         $date_range_end = $request->input('date_to');
         $name = $request->input('name');
         $genre = $request->input('genre');
-        $age_start = $request->input('age_from');
-        $age_end = $request->input('age_to');
         $duration_start = $request->input('duration_from');
-        $duration_end = $request->input('duration_to');
+        $duration_end = $request->input('duration_to'); // price к билетам . поиск билета и по их цене. любой из них может не присутствовать
+        // если театр не указан - null и пропуск
 
-        $events = Event::whereHas('spectacle', function($q){
-            $q->whereBetween('duration', [$duration_start, $duration_end])
-                ->whereBetween('age', [$age_start, $age_end])
-                ->where('genre', 'like', '%' .$genre. '%')
-                ->where('name', 'like', '%' .$name. '%');})
-            ->with('spectacle')
-            ->with('theater')
-            ->whereBetween('dated_at', [$date_range_start." 00:00:00:", $date_range_end. "23:59:59"])
-            ->get();
-    /*    $events = Event::whereBetween('dated_at', [$date_range_start." 00:00:00", $date_range_end." 23:59:59"])
-            ->where('genre', 'like', '%' .$genre. '%')
-            ->where('theater', '=', $theater)
-            ->whereBetween('age', [$age_start, $age_end])
-            ->whereBetween('duration', [$duration_start, $duration_end])
-            ->with('spectacle')
-            ->where('name', 'like', '%' .$name. '%')
-            ->with('theater')
-            ->get(); */
+        $gen = explode(',', $genre);
 
+        if($duration_end || $duration_start === null)
+        {
+            $events = Event::whereHas('spectacle', function($q) use($duration_start, $duration_end, $gen, $name){
+                $q->where(function($query) use ($gen){
+                    $query->where('genre', 'like', '%'.$gen[0].'%')
+                        ->orWhere('genre', 'like', '%'.$gen[1].'%')
+                        ->orWhere('genre', 'like', '%'.$gen[2].'%')
+                        ->orWhere('genre', 'like', '%'.$gen[3].'%')
+                        ->orWhere('genre', 'like', '%'.$gen[4].'%');})
+                    ->where('name', 'like', '%' .$name. '%')
+                    //  ->where(function($qu) use ($duration_start, $duration_end){
+                    //   $qu->whereBetween('duration', [$duration_start, $duration_end]);})
+                    //  ->where('theater', 'like', '%' .$name. '%')
+                ;}) // через запятую
+            ->with('spectacle')
+                ->with('theater')
+                ->whereBetween('dated_at', [$date_range_start." 00:00:00:", $date_range_end. "23:59:59"])
+                ->get();
+        }
+        else {
+            $events = Event::whereHas('spectacle', function($q) use($duration_start, $duration_end, $gen, $name){
+                $q->where(function($query) use ($gen){
+                    $query->where('genre', 'like', '%'.$gen[0].'%')
+                        ->orWhere('genre', 'like', '%'.$gen[1].'%')
+                        ->orWhere('genre', 'like', '%'.$gen[2].'%')
+                        ->orWhere('genre', 'like', '%'.$gen[3].'%')
+                        ->orWhere('genre', 'like', '%'.$gen[4].'%');})
+                    ->whereBetween('duration', [$duration_start, $duration_end])
+                    //  ->where(function($qu) use ($duration_start, $duration_end){
+                    //   $qu->whereBetween('duration', [$duration_start, $duration_end]);})
+                    //  ->where('theater', 'like', '%' .$name. '%')
+                ;}) // через запятую
+            ->with('spectacle')
+                ->with('theater')
+                ->get();
+        }
 
             return response()->json([
                 'events' => $events
@@ -154,6 +163,14 @@ class EventsController extends Controller
         }
     }
 
+    public function getAllEvents()
+    {
+        $theaters = Event::orderBy('created_at', 'asc')->get();
+
+        return response()->json([
+            'events' => $theaters
+        ], 200);
+    }
     public function deleteEvent(Request $request)
     {
         $event_id = $request->input('id');
@@ -187,18 +204,13 @@ class EventsController extends Controller
         else {
             $event->fill($request->only([
             'dated_at' => $request->dated_at,
-            'name' => $request->name,
             'description' => $request->description,
             'is_premiere' => $request->is_premiere,
             'is_chosen_for_main_page' => $request->is_chosen_for_main_page,
             'available_seats_number' => $request->available_seats_number,
             'theater_id' => $request->theater_id,
             'spectacle_id' => $request->spectacle_id,
-            'hall_id' => $request->hall_id,
-            'duration' => $request->duration,
-            'age' => $request->age,
-            'price' => $request->price,
-            'genre' => $request->genre]));
+            'hall_id' => $request->hall_id,]));
 
             $event->save();
 

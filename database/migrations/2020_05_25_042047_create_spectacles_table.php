@@ -23,6 +23,7 @@ class CreateSpectaclesTable extends Migration
             $table->string('poster')->nullable();
             $table->string('trailer')->nullable();
             $table->string('slider_poster')->nullable();
+            $table->string('genre')->nullable();
             $table->integer('theater_id');
             $table->timestamps();
         });
